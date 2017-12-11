@@ -68,7 +68,7 @@ func (command *GenerateCommand) Usage() {
 func (command *GenerateCommand) Execute() {
 	var claims = jws.Claims{}
 
-	var key []byte = []byte(command.Key)
+	var key []byte
 
 	if len(command.Preset) > 0 {
 		preset := command.Config.GetPreset(command.Preset)
@@ -99,6 +99,10 @@ func (command *GenerateCommand) Execute() {
 
 	if command.Expires > 0 {
 		claims.SetExpiration(time.Now().Add(command.Expires))
+	}
+
+	if len (command.Key) > 0 {
+		key = []byte(command.Key)
 	}
 
 	jwt := jws.NewJWT(claims, crypto.SigningMethodHS256)
