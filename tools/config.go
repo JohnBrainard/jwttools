@@ -7,25 +7,23 @@ import (
 	path2 "path"
 	"io/ioutil"
 	json2 "encoding/json"
+	"fmt"
 )
 
 type Preset struct {
+	Description string                 `json:"info"`
 	Claims      map[string]interface{} `json:"claims"`
 	Key         string                 `json:"key"`
 	Expires     string                 `json:"expires"`
-	Description string                 `json:"info"`
 }
 
 type Config struct {
 	Presets map[string]Preset `json:"presets"`
 }
 
-func ConfigLoadDefault() (config Config, err error) {
+func ConfigFindFile() string {
 	currentUser, _ := user.Current()
-
-	path := path2.Join(currentUser.HomeDir, ".jwttools", "config.json")
-
-	return ConfigLoad(path)
+	return path2.Join(currentUser.HomeDir, ".jwttools", "config.json")
 }
 
 func ConfigLoad(path string) (config Config, err error) {
@@ -42,16 +40,50 @@ func ConfigLoad(path string) (config Config, err error) {
 	return
 }
 
-func (config Config) GetPreset(name string) Preset {
+func (config *Config) GetPreset(name string) Preset {
 	return config.Presets[name]
 }
 
-func (config Config) HasPreset(name string) bool {
+func (config *Config) CreatePreset(name string) Preset {
+	preset := Preset{}
+
+	preset.Claims = make(map[string]interface{})
+
+	preset.Claims["iss"] = "issuer"
+	preset.Expires = "24h"
+	preset.Description = fmt.Sprintf("Token: %s", name)
+
+	return preset
+}
+
+func (config *Config) ParsePreset(json []byte) *Preset {
+	preset := Preset{}
+	err := json2.Unmarshal(json, &preset)
+	CheckError(err)
+
+	return &preset
+}
+
+func (config *Config) HasPreset(name string) bool {
 	_, ok := config.Presets[name]
 	return ok
 }
 
-func (preset Preset) GetExpiration() (expires time.Duration, err error) {
+func (config *Config) ToJson() []byte {
+	bytes, err := json2.MarshalIndent(config, "", "\t")
+	CheckError(err)
+
+	return bytes
+}
+
+func (preset *Preset) GetExpiration() (expires time.Duration, err error) {
 	expires, err = time.ParseDuration(preset.Expires)
 	return
+}
+
+func (preset *Preset) ToJson() []byte {
+	bytes, err := json2.MarshalIndent(preset, "", "\t")
+	CheckError(err)
+
+	return bytes
 }

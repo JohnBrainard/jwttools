@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/JohnBrainard/jwttools/tools"
 	"os"
 	"flag"
+	"fmt"
 )
 
 type Command interface {
@@ -15,12 +15,9 @@ type Command interface {
 }
 
 func main() {
-	config, err := tools.ConfigLoadDefault()
-	if os.IsNotExist(err) {
-		fmt.Printf("Cannot find config, skipping loading presets")
-	} else {
-		checkError(err)
-	}
+	jwtTools := tools.JwtToolsCreate()
+
+	fmt.Printf("%s\n", jwtTools.Config.ToJson())
 
 	if len(os.Args) < 2 {
 		flag.Usage()
@@ -28,9 +25,10 @@ func main() {
 	}
 
 	commands := map[string]Command{
-		"generate": tools.GenerateCommandNew(&config),
-		"info":     tools.InfoCommandNew(&config),
-		"presets":  tools.PresetsCommandNew(&config),
+		"generate": tools.GenerateCommandNew(jwtTools.Config),
+		"info":     tools.InfoCommandNew(jwtTools.Config),
+		"presets":  tools.PresetsCommandNew(jwtTools.Config),
+		"edit":     tools.EditCommandNew(jwtTools),
 	}
 
 	command, exists := commands[os.Args[1]]
@@ -44,11 +42,5 @@ func main() {
 		command.Execute()
 	} else {
 		flag.Usage()
-	}
-}
-
-func checkError(err error) {
-	if err != nil {
-		panic(err)
 	}
 }
