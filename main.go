@@ -4,7 +4,6 @@ import (
 	"github.com/JohnBrainard/jwttools/tools"
 	"os"
 	"flag"
-	"fmt"
 )
 
 type Command interface {
@@ -16,8 +15,6 @@ type Command interface {
 
 func main() {
 	jwtTools := tools.JwtToolsCreate()
-
-	fmt.Printf("%s\n", jwtTools.Config.ToJson())
 
 	if len(os.Args) < 2 {
 		flag.Usage()
