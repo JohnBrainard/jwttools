@@ -69,6 +69,14 @@ func (config *Config) HasPreset(name string) bool {
 	return ok
 }
 
+func (config *Config) AddPreset(name string, preset Preset) {
+	if config.Presets == nil {
+		config.Presets = make(map[string]Preset)
+	}
+
+	config.Presets[name] = preset
+}
+
 func (config *Config) ToJson() []byte {
 	bytes, err := json2.MarshalIndent(config, "", "\t")
 	CheckError(err)

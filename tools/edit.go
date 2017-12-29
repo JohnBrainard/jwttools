@@ -67,7 +67,7 @@ func (command *EditCommand) Execute() {
 	fmt.Printf("New preset: %s\n", presetJson)
 
 	newPreset := command.JwtTools.Config.ParsePreset(presetJson)
-	command.JwtTools.Config.Presets[command.Preset] = *newPreset
+	command.JwtTools.Config.AddPreset(command.Preset, *newPreset)
 
 	command.JwtTools.SaveConfig()
 }

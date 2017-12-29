@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path"
 	"time"
+	"path/filepath"
 )
 
 type JwtTools struct {
@@ -16,20 +17,32 @@ func JwtToolsCreate() *JwtTools {
 	configPath := ConfigFindFile()
 	config, err := ConfigLoad(configPath)
 
-	if os.IsNotExist(err) {
-		fmt.Printf("Cannot find config. Skipping presets")
-	} else {
+	if err != nil && !os.IsNotExist(err) {
 		CheckError(err)
 	}
 
-	return &JwtTools{
+	tools := JwtTools{
 		&config,
 		configPath,
 	}
+
+	if tools.Config == nil {
+		presets := make(map[string]Preset)
+		tools.Config = &Config{
+			Presets: presets,
+		}
+	}
+
+	return &tools
 }
 
 func (tools *JwtTools) SaveConfig() {
-	tools.createBackup()
+	configDir := filepath.Dir(tools.ConfigPath)
+	if _, err := os.Stat(configDir); os.IsNotExist(err) {
+		os.MkdirAll(configDir, 0700)
+	} else {
+		tools.createBackup()
+	}
 
 	configJson := tools.Config.ToJson()
 

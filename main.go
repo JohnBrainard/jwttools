@@ -22,10 +22,11 @@ func main() {
 	}
 
 	commands := map[string]Command{
+		"edit":     tools.EditCommandNew(jwtTools),
 		"generate": tools.GenerateCommandNew(jwtTools.Config),
 		"info":     tools.InfoCommandNew(jwtTools.Config),
+		"init":     tools.InitCommandNew(jwtTools),
 		"presets":  tools.PresetsCommandNew(jwtTools.Config),
-		"edit":     tools.EditCommandNew(jwtTools),
 	}
 
 	command, exists := commands[os.Args[1]]
