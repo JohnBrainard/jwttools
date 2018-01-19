@@ -5,6 +5,7 @@ import (
 	"os"
 	"fmt"
 	"github.com/SermoDigital/jose/jws"
+	"encoding/json"
 )
 
 type InfoCommand struct {
@@ -51,7 +52,6 @@ func (command *InfoCommand) Execute() {
 	fmt.Printf("Expiration: %s\n", expiration)
 
 	fmt.Println("Claims:")
-	for key, value := range token.Claims() {
-		fmt.Printf("  %s = %s\n", key, value)
-	}
+	claimsJson, _ := json.MarshalIndent(token.Claims(), "  ", "  ")
+	fmt.Printf("  %s\n", claimsJson)
 }

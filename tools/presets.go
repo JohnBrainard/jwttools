@@ -4,13 +4,15 @@ import (
 	"flag"
 	"os"
 	"fmt"
+	"encoding/json"
 )
 
 type PresetsCommand struct {
 	Config *Config
 
-	keys   bool
-	preset string
+	keys    bool
+	preset  string
+	verbose bool
 
 	flagSet *flag.FlagSet
 }
@@ -21,6 +23,7 @@ func PresetsCommandNew(config *Config) *PresetsCommand {
 	command.flagSet = flag.NewFlagSet("presets", flag.ExitOnError)
 	command.flagSet.BoolVar(&command.keys, "keys", false, "Show keys [default false]")
 	command.flagSet.StringVar(&command.preset, "preset", "", "Display preset")
+	command.flagSet.BoolVar(&command.verbose, "verbose", false, "Display extra information")
 
 	command.Config = config
 
@@ -59,12 +62,20 @@ func (command *PresetsCommand) Execute() {
 	}
 
 	for key, config := range presets {
-		fmt.Printf("%s: %s:\n", key, config.Description)
+		fmt.Println(config.Description)
+		fmt.Printf("  Preset: %s\n", key)
+		fmt.Printf("  Issuer: %s\n", config.Claims["iss"])
+		fmt.Printf("  Expires: %s\n", config.Expires)
+
 		if command.keys {
 			fmt.Printf("  Key: %s\n", config.Key)
 		}
-		fmt.Printf("  Expires: %s\n", config.Expires)
-		fmt.Printf("  Claims: %s\n", config.Claims)
+
+		if command.verbose {
+			claimsJson, _ := json.MarshalIndent(config.Claims, "  ", "  ")
+			fmt.Printf("  Claims:\n  %s\n", claimsJson)
+		}
+
 		fmt.Println()
 	}
 }
