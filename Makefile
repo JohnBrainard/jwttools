@@ -15,6 +15,7 @@ darwin:
 
 release: windows linux darwin
 	zip -r jwttools-all.zip release/
+	tar cvzf jwttools-all.tar.gz release/
 
 clean:
 	rm -r release
